@@ -33,10 +33,14 @@ const seekbar = document.getElementById('preview-seekbar');
 const currentTimeEl = document.getElementById('current-time');
 const totalDurationEl = document.getElementById('total-duration');
 
+// --- Library Instances ---
+// Instantiate the beat detector once with default options
+const beatDetect = new BeatDetect();
+
 // --- FFmpeg Setup ---
 const loadFFmpeg = async () => {
     ffmpeg = createFFmpeg({
-        log: false, // Set to true for deep debugging
+        log: false,
         progress: ({ ratio }) => {
             const progress = Math.floor(ratio * 100);
             if (progress > 0 && progress <= 100) {
@@ -50,24 +54,23 @@ const loadFFmpeg = async () => {
     convertBtn.disabled = false;
 };
 
-// --- BPM Detection (REWRITTEN FOR NEW LIBRARY) ---
+// --- BPM Detection (REWRITTEN FOR BeatDetect.js) ---
 const detectBPM = async (file) => {
     bpmLabel.innerText = "BPM (Analyzing...)";
+    // Create a temporary URL for the library to fetch the file data
+    const fileURL = URL.createObjectURL(file);
+
     try {
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const arrayBuffer = await file.arrayBuffer();
-        const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-        
-        // Use the new library's 'analyze' function
-        const tempo = await analyze(audioBuffer); 
-        
-        bpmInput.value = Math.round(tempo);
+        const info = await beatDetect.getBeatInfo({ url: fileURL });
+        bpmInput.value = Math.round(info.bpm);
         bpmLabel.innerText = "BPM (Detected):";
     } catch (err) {
-        // Graceful error handling remains the same
         console.error("BPM detection failed:", err);
         bpmLabel.innerText = "BPM (Detection failed, defaulting to 120):";
-        bpmInput.value = 120; // Set a sensible default
+        bpmInput.value = 120;
+    } finally {
+        // IMPORTANT: Revoke the temporary URL to prevent memory leaks
+        URL.revokeObjectURL(fileURL);
     }
 };
 
@@ -76,7 +79,7 @@ const updatePitchControlVisibility = () => {
     if (speedSelect.value === '1.0') {
         pitchControlWrapper.style.display = 'none';
     } else {
-        pitchControlWrapper.style.display = 'flex'; // Use 'flex' to match .control-group styles
+        pitchControlWrapper.style.display = 'flex';
     }
 };
 
@@ -87,9 +90,9 @@ const showInitialState = () => {
     finishedStateDiv.style.display = 'none';
     dropZone.classList.remove('file-loaded');
     inputFile = null;
-    fileInput.value = ''; // Reset file input to allow re-uploading the same file
+    fileInput.value = '';
     previewAudio.pause();
-    previewAudio.src = ''; // Clear the audio source
+    previewAudio.src = '';
 };
 
 const showFileLoadedState = (file) => {
@@ -100,7 +103,7 @@ const showFileLoadedState = (file) => {
     finishedStateDiv.style.display = 'none';
     dropZone.classList.add('file-loaded');
     filePreview.innerHTML = `<p><strong>File:</strong> ${file.name}</p>`;
-    updatePitchControlVisibility(); // Set initial visibility of pitch control
+    updatePitchControlVisibility();
     detectBPM(file);
 };
 
@@ -211,7 +214,6 @@ convertBtn.addEventListener('click', async () => {
             filter_complex.push(`${current_stream}adelay=${delayMs}|${delayMs}[delayed]`);
             current_stream = "[delayed]";
         }
-
         filter_complex.push(`${current_stream}areverse[reversed]`);
         current_stream = "[reversed]";
 
@@ -247,7 +249,8 @@ convertBtn.addEventListener('click', async () => {
         ffmpeg.FS('unlink', inputFilename);
         ffmpeg.FS('unlink', outputFilename);
 
-    } catch (error) {
+    } catch (error)
+    {
         console.error(error);
         alert('An error occurred during conversion. Check the console for details.');
         showFileLoadedState(inputFile);
