@@ -50,20 +50,21 @@ const loadFFmpeg = async () => {
     convertBtn.disabled = false;
 };
 
-// --- BPM Detection ---
+// --- BPM Detection (REWRITTEN FOR NEW LIBRARY) ---
 const detectBPM = async (file) => {
-    bpmLabel.innerText = "BPM (Detecting...)";
+    bpmLabel.innerText = "BPM (Analyzing...)";
     try {
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
         const arrayBuffer = await file.arrayBuffer();
         const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
         
-        const bpm = await DetectBPM(audioBuffer); 
+        // Use the new library's 'analyze' function
+        const tempo = await analyze(audioBuffer); 
         
-        bpmInput.value = Math.round(bpm);
+        bpmInput.value = Math.round(tempo);
         bpmLabel.innerText = "BPM (Detected):";
     } catch (err) {
-        // --- GRACEFUL ERROR HANDLING ---
+        // Graceful error handling remains the same
         console.error("BPM detection failed:", err);
         bpmLabel.innerText = "BPM (Detection failed, defaulting to 120):";
         bpmInput.value = 120; // Set a sensible default
@@ -114,11 +115,9 @@ const showFinishedState = (outputUrl, outputFilename) => {
     progressContainer.style.display = 'none';
     finishedStateDiv.style.display = 'block';
     
-    // Setup download button
     downloadBtn.href = outputUrl;
     downloadBtn.download = outputFilename;
 
-    // Setup player
     previewAudio.src = outputUrl;
     playIcon.style.display = 'block';
     pauseIcon.style.display = 'none';
@@ -155,39 +154,29 @@ fileInput.addEventListener('change', (e) => {
 });
 
 speedSelect.addEventListener('change', updatePitchControlVisibility);
-
 startOverBtn.addEventListener('click', showInitialState);
 
 // --- Player Event Handlers ---
 playBtn.addEventListener('click', () => {
-    if (previewAudio.paused) {
-        previewAudio.play();
-    } else {
-        previewAudio.pause();
-    }
+    previewAudio.paused ? previewAudio.play() : previewAudio.pause();
 });
-
 previewAudio.addEventListener('play', () => {
     playIcon.style.display = 'none';
     pauseIcon.style.display = 'block';
 });
-
 previewAudio.addEventListener('pause', () => {
     playIcon.style.display = 'block';
     pauseIcon.style.display = 'none';
 });
-
 previewAudio.addEventListener('loadedmetadata', () => {
     totalDurationEl.textContent = formatTime(previewAudio.duration);
     seekbar.max = previewAudio.duration;
 });
-
 previewAudio.addEventListener('timeupdate', () => {
     currentTimeEl.textContent = formatTime(previewAudio.currentTime);
     seekbar.value = previewAudio.currentTime;
 });
-
-seekbar.addEventListener('input', (e) => { // 'input' is better for dragging
+seekbar.addEventListener('input', (e) => {
     previewAudio.currentTime = e.target.value;
 });
 
@@ -197,16 +186,13 @@ convertBtn.addEventListener('click', async () => {
         alert('No file selected!');
         return;
     }
-
     showProcessingState();
     progressText.innerText = "Starting conversion...";
 
-    // Generate filenames
     const inputFilename = 'input.mp3';
     const originalNameWithoutExt = inputFile.name.substring(0, inputFile.name.lastIndexOf('.')) || inputFile.name;
     const outputFilename = `${originalNameWithoutExt} (reversed).mp3`;
 
-    // Get options from UI
     const speed = speedSelect.value;
     const conservePitch = document.getElementById('pitch-conserve').checked;
     const stereoShift = document.getElementById('stereo-shift-enable').checked;
@@ -216,11 +202,9 @@ convertBtn.addEventListener('click', async () => {
         progressText.innerText = "Loading file into memory...";
         ffmpeg.FS('writeFile', inputFilename, await fetchFile(inputFile));
         
-        // Build the complex filter command
         let filter_complex = [];
         let current_stream = "[0:a]";
 
-        // 1. Stereo Shift Filter
         if (stereoShift) {
             const beatDurationMs = (60 / bpm) * 1000;
             const delayMs = Math.round(beatDurationMs * 2);
@@ -228,27 +212,21 @@ convertBtn.addEventListener('click', async () => {
             current_stream = "[delayed]";
         }
 
-        // 2. Reverse Filter (always on)
         filter_complex.push(`${current_stream}areverse[reversed]`);
         current_stream = "[reversed]";
 
-        // 3. Speed/Pitch Filter
         if (speed !== "1.0") {
             if (conservePitch) {
-                // atempo filter changes tempo without changing pitch.
                 let tempo = parseFloat(speed);
                 let tempoFilters = [];
-                // Chain atempo for speeds outside the typical 0.5-2.0 range for safety
                 while (tempo < 0.5) { tempoFilters.push('atempo=0.5'); tempo /= 0.5; }
                 while (tempo > 2.0) { tempoFilters.push('atempo=2.0'); tempo /= 2.0; }
                 if (tempo !== 1.0) { tempoFilters.push(`atempo=${tempo}`); }
-                
                 if (tempoFilters.length > 0) {
                     filter_complex.push(`${current_stream}${tempoFilters.join(',')}[spedup]`);
                     current_stream = "[spedup]";
                 }
             } else {
-                // asetrate filter changes tempo AND pitch together.
                 filter_complex.push(`${current_stream}asetrate=44100*${speed}[spedup]`);
                 current_stream = "[spedup]";
             }
@@ -266,14 +244,13 @@ convertBtn.addEventListener('click', async () => {
 
         showFinishedState(url, outputFilename);
 
-        // Clean up virtual file system
         ffmpeg.FS('unlink', inputFilename);
         ffmpeg.FS('unlink', outputFilename);
 
     } catch (error) {
         console.error(error);
         alert('An error occurred during conversion. Check the console for details.');
-        showFileLoadedState(inputFile); // Go back to options screen
+        showFileLoadedState(inputFile);
         convertBtn.disabled = false;
     }
 });
