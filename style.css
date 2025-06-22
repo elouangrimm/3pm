@@ -246,6 +246,10 @@ progress::-webkit-progress-value {
 
 #finished-state {
     margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* This centers all children horizontally */
+    width: 100%;
 }
 
 #finished-text {

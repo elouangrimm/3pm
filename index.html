@@ -7,8 +7,8 @@
     <link rel="stylesheet" href="style.css">
     <!-- FFMPEG.WASM Scripts -->
     <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js"></script>
-    <!-- BPM Detection Library -->
-    <script src="https://unpkg.com/bpm-detective@2.2.3/dist/bpm-detective.js"></script>
+    <!-- BPM Detection Library (LOCAL FILE) -->
+    <script src="bpm-detective.js"></script>
 </head>
 <body>
 
@@ -44,7 +44,7 @@
                         </select>
                     </div>
 
-                    <div class="control-group">
+                    <div class="control-group" id="pitch-control-wrapper" style="display: none;">
                         <label for="pitch-conserve">Conserve Pitch:</label>
                         <input type="checkbox" id="pitch-conserve" checked>
                     </div>
