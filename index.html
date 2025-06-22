@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MP3 Reverser Pro</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- FFMPEG.WASM Scripts -->
+    <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js"></script>
+</head>
+<body>
+
+    <div class="container" id="drop-zone">
+        <div class="content-wrapper">
+
+            <!-- Initial State -->
+            <div id="initial-state">
+                <h1>MP3 Reverser Pro</h1>
+                <h2>Reverse audio, change speed, and apply effects entirely in your browser.</h2>
+                <label for="file-input" class="action-btn">
+                    Select MP3 File
+                </label>
+                <p style="margin-top: 1rem; color: var(--stone-400);">...or drag and drop it anywhere.</p>
+                <p id="engine-loader">Loading audio engine...</p>
+            </div>
+
+            <!-- File Loaded State -->
+            <div id="file-loaded-state" style="display: none;">
+                <div id="file-preview"></div>
+                
+                <div id="conversion-controls">
+                    <div class="control-group">
+                        <label for="speed-select">Speed:</label>
+                        <select id="speed-select">
+                            <option value="0.25">0.25x (Super Slow)</option>
+                            <option value="0.5">0.5x (Slow)</option>
+                            <option value="0.75">0.75x</option>
+                            <option value="1.0" selected>1.0x (Normal)</option>
+                            <option value="1.25">1.25x</option>
+                            <option value="1.5">1.5x (Fast)</option>
+                            <option value="2.0">2.0x (Double Speed)</option>
+                        </select>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="pitch-conserve">Conserve Pitch:</label>
+                        <input type="checkbox" id="pitch-conserve" checked>
+                    </div>
+                    
+                    <div class="control-group stereo-shift-group">
+                       <div>
+                            <p>"Stereo Shift" will shift the left and right channel by 2 beats. Works best with music that has a good and steady beat.</p>
+                            <label for="stereo-shift-enable">Enable Stereo Shift:</label>
+                            <input type="checkbox" id="stereo-shift-enable">
+                            <label for="bpm-input" style="margin-left: 1rem;">BPM:</label>
+                            <input type="number" id="bpm-input" value="120" min="40" max="240">
+                       </div>
+                    </div>
+
+                </div>
+
+                <button id="convert-btn" class="action-btn" disabled>Reverse & Convert</button>
+            </div>
+
+            <!-- Processing State -->
+            <div id="progress-container" style="display: none;">
+                <progress id="progress-bar" value="0" max="100"></progress>
+                <span id="progress-text">Initializing...</span>
+            </div>
+
+            <!-- Finished State -->
+            <div id="finished-state" style="display: none;">
+                <p id="finished-text">✅ Conversion Complete!</p>
+                <a id="download-btn" href="#" download="reversed.mp3" class="action-btn">Download File</a>
+                <button id="start-over-btn" class="action-btn secondary">Convert Another</button>
+            </div>
+
+        </div>
+    </div>
+
+    <input type="file" id="file-input" accept=".mp3">
+
+    <script src="script.js"></script>
+</body>
+</html>

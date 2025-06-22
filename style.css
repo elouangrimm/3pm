@@ -1,0 +1,250 @@
+:root {
+    /* b&w */
+    --stone-050: #fafaf9;
+    --stone-100: #f5f5f4;
+    --stone-200: #e7e5e4;
+    --stone-300: #d6d3d1;
+    --stone-400: #a8a29e;
+    --stone-500: #78716c;
+    --stone-800: #292524;
+    --stone-900: #1c1917;
+    --stone-950: #0c0a09;
+
+    /* colors */
+    --blue: #3b82f6;
+    --green: #22c55e;
+    --indigo: #6366f1;
+
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* --- Global Styles --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    width: 100%;
+    overflow: hidden; /* Prevents scrollbars on the body */
+}
+
+body {
+    background-color: var(--stone-950);
+    color: var(--stone-200);
+    font-family: var(--font-sans);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    user-select: none;
+    line-height: 1.6;
+}
+
+/* --- Main Container & States --- */
+.container {
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    border: 3px dashed var(--stone-400);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+.content-wrapper {
+    max-width: 600px; /* Constrains content width but not the drop area */
+    width: 90%;
+}
+
+.container.dragover {
+    border-color: var(--blue);
+    background-color: var(--stone-900);
+}
+
+.container.file-loaded {
+    border-style: solid;
+    border-color: var(--stone-800);
+}
+
+input[type="file"] {
+    display: none;
+}
+
+h1 {
+    font-size: 3rem;
+    font-weight: bold;
+    color: var(--stone-100);
+    margin-bottom: 0.25rem;
+}
+
+h2 {
+    font-size: 1.1rem;
+    color: var(--stone-400);
+    margin-bottom: 2rem;
+    font-weight: normal;
+}
+
+/* --- UI Controls & Buttons --- */
+.action-btn {
+    display: inline-block;
+    margin: 10px 5px;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    background-color: var(--blue);
+    color: var(--stone-050);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.2s;
+    text-decoration: none;
+}
+
+.action-btn:hover:not(:disabled) {
+    background-color: #5193f8;
+    transform: translateY(-2px);
+}
+
+.action-btn.secondary {
+    background-color: var(--stone-800);
+    color: var(--stone-200);
+}
+
+.action-btn.secondary:hover:not(:disabled) {
+    background-color: var(--stone-500);
+}
+
+.action-btn:disabled {
+    background-color: var(--stone-500);
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+
+#engine-loader {
+    font-style: italic;
+    color: var(--stone-500);
+    margin-top: 1rem;
+    height: 1em; /* Reserve space to prevent layout shift */
+}
+
+/* --- Conversion Controls --- */
+#conversion-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+    margin-top: 1.5rem;
+    width: 100%;
+}
+
+.control-group {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+label {
+    font-size: 1rem;
+    color: var(--stone-300);
+}
+
+select, input[type="number"], input[type="checkbox"] {
+    background-color: var(--stone-800);
+    color: var(--stone-100);
+    border: 1px solid var(--stone-500);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+input[type="number"] {
+    width: 80px;
+}
+
+/* Simple checkbox styling */
+input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--blue);
+}
+
+.stereo-shift-group {
+    background-color: var(--stone-900);
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--stone-800);
+    max-width: 400px;
+}
+.stereo-shift-group p {
+    font-size: 0.9rem;
+    color: var(--stone-400);
+    margin-bottom: 0.75rem;
+}
+
+
+/* --- File Preview --- */
+.file-preview {
+    margin-top: 20px;
+    max-width: 100%;
+    color: var(--stone-300);
+    word-break: break-all;
+    background-color: var(--stone-900);
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--stone-800);
+}
+.file-preview p {
+    margin: 0;
+}
+
+/* --- Progress & Finished States --- */
+#progress-container {
+    width: 100%;
+    margin-top: 1.5rem;
+}
+
+progress {
+    width: 100%;
+    height: 12px;
+    -webkit-appearance: none;
+    appearance: none;
+    border: none;
+    border-radius: 10px;
+    background-color: var(--stone-800);
+}
+
+progress::-webkit-progress-bar {
+    background-color: var(--stone-800);
+    border-radius: 10px;
+}
+
+progress::-webkit-progress-value {
+    background-color: var(--green);
+    border-radius: 10px;
+    transition: width 0.3s ease-in-out;
+}
+
+#progress-text {
+    display: block;
+    margin-top: 0.5rem;
+    color: var(--stone-300);
+}
+
+#finished-state {
+    margin-top: 1rem;
+}
+
+#finished-text {
+    font-size: 1.25rem;
+    color: var(--green);
+    margin-bottom: 1rem;
+}
