@@ -58,7 +58,7 @@ const detectBPM = async (file) => {
         const arrayBuffer = await file.arrayBuffer();
         const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
         // Use the bpm-detective library function (loaded locally)
-        const bpm = await bpm_detective(audioBuffer);
+        const bpm = await DetectBPM(audioBuffer);
         bpmInput.value = Math.round(bpm);
         bpmLabel.innerText = "BPM (Detected):";
     } catch (err) {
