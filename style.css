@@ -127,7 +127,6 @@ h2 {
     opacity: 0.7;
 }
 
-
 #engine-loader {
     font-style: italic;
     color: var(--stone-500);
@@ -173,7 +172,6 @@ input[type="number"] {
     width: 80px;
 }
 
-/* Simple checkbox styling */
 input[type="checkbox"] {
     width: 18px;
     height: 18px;
@@ -194,7 +192,6 @@ input[type="checkbox"] {
     margin-bottom: 0.75rem;
 }
 
-
 /* --- File Preview --- */
 .file-preview {
     margin-top: 20px;
@@ -211,7 +208,7 @@ input[type="checkbox"] {
     margin: 0;
 }
 
-/* --- Progress & Finished States --- */
+/* --- Progress --- */
 #progress-container {
     width: 100%;
     margin-top: 1.5rem;
@@ -244,11 +241,13 @@ progress::-webkit-progress-value {
     color: var(--stone-300);
 }
 
+/* --- Finished State & Player --- */
 #finished-state {
     margin-top: 1rem;
     display: flex;
     flex-direction: column;
-    align-items: center; /* This centers all children horizontally */
+    align-items: center;
+    /* This centers all children horizontally */
     width: 100%;
 }
 
@@ -267,8 +266,8 @@ progress::-webkit-progress-value {
     border-radius: 12px;
     border: 1px solid var(--stone-800);
     margin: 20px 0;
-    width: 100%;
     max-width: 500px;
+    /* FIX: Removed 'width: 100%' to allow centering */
 }
 
 .play-btn {
@@ -311,6 +310,5 @@ progress::-webkit-progress-value {
     font-size: 0.9rem;
     color: var(--stone-400);
     min-width: 40px;
-    /* Prevents layout shift */
     text-align: center;
 }
