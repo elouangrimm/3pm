@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="style.css">
     <!-- FFMPEG.WASM Scripts -->
     <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js"></script>
+    <!-- BPM Detection Library -->
+    <script src="https://unpkg.com/bpm-detective@2.2.3/dist/bpm-detective.js"></script>
 </head>
 <body>
 
@@ -52,7 +54,7 @@
                             <p>"Stereo Shift" will shift the left and right channel by 2 beats. Works best with music that has a good and steady beat.</p>
                             <label for="stereo-shift-enable">Enable Stereo Shift:</label>
                             <input type="checkbox" id="stereo-shift-enable">
-                            <label for="bpm-input" style="margin-left: 1rem;">BPM:</label>
+                            <label for="bpm-input" id="bpm-label" style="margin-left: 1rem;">BPM:</label>
                             <input type="number" id="bpm-input" value="120" min="40" max="240">
                        </div>
                     </div>
@@ -71,6 +73,21 @@
             <!-- Finished State -->
             <div id="finished-state" style="display: none;">
                 <p id="finished-text">✅ Conversion Complete!</p>
+                
+                <!-- Audio Player -->
+                <div id="preview-player-container" class="player-container">
+                    <audio id="preview-audio"></audio>
+                    <button id="preview-play-btn" class="play-btn">
+                        <svg class="play-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg>
+                        <svg class="pause-icon" viewBox="0 0 24 24" style="display: none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path></svg>
+                    </button>
+                    <div class="seek-container">
+                        <span id="current-time" class="time-display">0:00</span>
+                        <progress id="preview-seekbar" value="0" max="100"></progress>
+                        <span id="total-duration" class="time-display">0:00</span>
+                    </div>
+                </div>
+
                 <a id="download-btn" href="#" download="reversed.mp3" class="action-btn">Download File</a>
                 <button id="start-over-btn" class="action-btn secondary">Convert Another</button>
             </div>
