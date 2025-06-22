@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- FIX: Prevents the favicon.ico 404 error in the console -->
     <link rel="icon" href="data:,">
-    <title>MP3 Reverser Pro</title>
+    <title>MP3 Effects Processor</title>
     <link rel="stylesheet" href="style.css">
     <!-- FFMPEG.WASM Scripts -->
     <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js"></script>
@@ -13,14 +12,14 @@
     <script src="BeatDetect.js"></script>
 </head>
 <body>
-    <!-- The rest of your body content remains the same... -->
+
     <div class="container" id="drop-zone">
         <div class="content-wrapper">
 
             <!-- Initial State -->
             <div id="initial-state">
-                <h1>MP3 Reverser Pro</h1>
-                <h2>Reverse audio, change speed, and apply effects entirely in your browser.</h2>
+                <h1>MP3 Effects Processor</h1>
+                <h2>Reverse, shift, and change the speed of your audio.</h2>
                 <label for="file-input" class="action-btn">
                     Select MP3 File
                 </label>
@@ -33,6 +32,13 @@
                 <div id="file-preview"></div>
                 
                 <div id="conversion-controls">
+
+                    <!-- NEW: Reverse Audio Checkbox -->
+                    <div class="control-group">
+                        <label for="reverse-enable">Reverse Audio:</label>
+                        <input type="checkbox" id="reverse-enable" checked>
+                    </div>
+
                     <div class="control-group">
                         <label for="speed-select">Speed:</label>
                         <select id="speed-select">
@@ -63,7 +69,7 @@
 
                 </div>
 
-                <button id="convert-btn" class="action-btn" disabled>Reverse & Convert</button>
+                <button id="convert-btn" class="action-btn" disabled>Process Audio</button>
             </div>
 
             <!-- Processing State -->
@@ -74,7 +80,7 @@
 
             <!-- Finished State -->
             <div id="finished-state" style="display: none;">
-                <p id="finished-text">✅ Conversion Complete!</p>
+                <p id="finished-text">✅ Processing Complete!</p>
                 
                 <!-- Audio Player -->
                 <div id="preview-player-container" class="player-container">
@@ -90,8 +96,8 @@
                     </div>
                 </div>
 
-                <a id="download-btn" href="#" download="reversed.mp3" class="action-btn">Download File</a>
-                <button id="start-over-btn" class="action-btn secondary">Convert Another</button>
+                <a id="download-btn" href="#" download="processed.mp3" class="action-btn">Download File</a>
+                <button id="start-over-btn" class="action-btn secondary">Process Another</button>
             </div>
 
         </div>

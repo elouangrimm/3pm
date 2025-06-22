@@ -189,15 +189,21 @@ convertBtn.addEventListener("click", async () => {
     }
     showProcessingState();
     progressText.innerText = "Starting conversion...";
-    const inputFilename = "input.mp3";
-    const originalNameWithoutExt =
-        inputFile.name.substring(0, inputFile.name.lastIndexOf(".")) ||
-        inputFile.name;
-    const outputFilename = `${originalNameWithoutExt} (reversed).mp3`;
+
+    // Get all options from UI
+    const reverseEnabled = document.getElementById("reverse-enable").checked;
     const speed = speedSelect.value;
     const conservePitch = document.getElementById("pitch-conserve").checked;
     const stereoShift = document.getElementById("stereo-shift-enable").checked;
     const bpm = bpmInput.value;
+
+    // Generate filenames based on options
+    const inputFilename = "input.mp3";
+    const originalNameWithoutExt =
+        inputFile.name.substring(0, inputFile.name.lastIndexOf(".")) ||
+        inputFile.name;
+    const outputSuffix = reverseEnabled ? "(reversed)" : "(processed)";
+    const outputFilename = `${originalNameWithoutExt} ${outputSuffix}.mp3`;
 
     try {
         progressText.innerText = "Loading file into memory...";
@@ -208,14 +214,18 @@ convertBtn.addEventListener("click", async () => {
         if (stereoShift) {
             const beatDurationMs = (60 / bpm) * 1000;
             const delayMs = Math.round(beatDurationMs * 2);
-            // FIX: Delay left channel by 0, right channel by delayMs
             filter_complex.push(
                 `${current_stream}adelay=0|${delayMs}[delayed]`
             );
             current_stream = "[delayed]";
         }
-        filter_complex.push(`${current_stream}areverse[reversed]`);
-        current_stream = "[reversed]";
+
+        // --- NEW: Conditionally add the reverse filter ---
+        if (reverseEnabled) {
+            filter_complex.push(`${current_stream}areverse[reversed]`);
+            current_stream = "[reversed]";
+        }
+
         if (speed !== "1.0") {
             if (conservePitch) {
                 let tempo = parseFloat(speed);
@@ -244,17 +254,29 @@ convertBtn.addEventListener("click", async () => {
                 current_stream = "[spedup]";
             }
         }
-        progressText.innerText = "Applying effects and reversing audio...";
-        const command = [
-            "-i",
-            inputFilename,
-            "-filter_complex",
-            filter_complex.join(";"),
-            "-map",
-            current_stream,
-            outputFilename,
-        ];
+
+        // If no filters were added, we can't use -filter_complex.
+        // In this case, we just copy the stream.
+        let command;
+        if (filter_complex.length > 0) {
+            command = [
+                "-i",
+                inputFilename,
+                "-filter_complex",
+                filter_complex.join(";"),
+                "-map",
+                current_stream,
+                outputFilename,
+            ];
+        } else {
+            // This happens if user unchecks everything and speed is 1x.
+            // We'll just output the original file.
+            command = ["-i", inputFilename, "-c", "copy", outputFilename];
+        }
+
+        progressText.innerText = "Applying effects...";
         await ffmpeg.run(...command);
+
         progressText.innerText = "Finalizing file...";
         const data = ffmpeg.FS("readFile", outputFilename);
         const blob = new Blob([data.buffer], { type: "audio/mpeg" });
