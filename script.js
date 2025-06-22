@@ -57,13 +57,16 @@ const detectBPM = async (file) => {
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
         const arrayBuffer = await file.arrayBuffer();
         const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-        // Use the bpm-detective library function (loaded locally)
-        const bpm = await DetectBPM(audioBuffer);
+        
+        const bpm = await DetectBPM(audioBuffer); 
+        
         bpmInput.value = Math.round(bpm);
         bpmLabel.innerText = "BPM (Detected):";
     } catch (err) {
+        // --- GRACEFUL ERROR HANDLING ---
         console.error("BPM detection failed:", err);
-        bpmLabel.innerText = "BPM (Detection failed):";
+        bpmLabel.innerText = "BPM (Detection failed, defaulting to 120):";
+        bpmInput.value = 120; // Set a sensible default
     }
 };
 
@@ -132,7 +135,7 @@ const formatTime = (seconds) => {
 
 // --- Event Handlers ---
 dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
-dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); dropZone.classList.remove('dragover'); });
+dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); dropZone.classList.remove('dragleave'); });
 dropZone.addEventListener('drop', (e) => {
     e.preventDefault();
     dropZone.classList.remove('dragover');
